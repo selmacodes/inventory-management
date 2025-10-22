@@ -7,3 +7,10 @@ let products = [
     { id: 5, name: "Tuschpennor", quantity: 40, price: 25, category: "Kontorsmaterial" }
 ];
 
+// Lista alla produkter
+export function listProducts() {
+    console.log("Produkter i lagret:");
+    products.forEach(p => {
+        console.log(`${p.id}: ${p.name} (${p.category}) - Antal: ${p.quantity}, Pris: ${p.price} kr`);
+    });
+}
