@@ -26,3 +26,17 @@ export function addProduct(name, quantity, price, category) {
 
     console.log(`Produkt "${name}" har lagts till.`);
 }
+
+// Ta bort produkt
+export function removeProduct(id) {
+    // Hitta index för produkten med det angivna ID:t
+    // Om ingen produkt hittas blir index = -1
+    const index = products.findIndex(p => p.id === id);
+
+    if (index !== -1) {
+        const removed = products.splice(index, 1);
+        console.log(`Produkt "${removed[0].name}" har tagits bort.`)
+    } else {
+        console.log(`Ingen produkt hittades med ID ${id}.`)
+    }
+}
