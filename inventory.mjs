@@ -38,6 +38,18 @@ export function addProduct(name, quantity, price, category) {
     console.log(`Produkt "${name}" har lagts till.`);
 }
 
+// Uppdatera produkt
+export function updateProduct(id, newQuantity, newPrice) {
+    const product = products.find(p => p.id === id);
+    if (product) {
+        if (newQuantity !== undefined) product.quantity = newQuantity;
+        if (newPrice !== undefined) product.price = newPrice;
+        console.log(`Produkt "${product.name}" har uppdaterats.`);
+    } else {
+        console.log(`Ingen produkt hittades med ID ${id}.`);
+    }
+}
+
 // Ta bort produkt
 export function removeProduct(id) {
     // Hitta index för produkten med det angivna ID:t
