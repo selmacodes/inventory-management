@@ -15,6 +15,17 @@ export function listProducts() {
     });
 }
 
+// Hämta produkt med ID
+export function getProduct(id) {
+    const product = products.find(p => p.id === id);
+    if (product) {
+        return product;
+    } else {
+        console.log(`Ingen produkt hittades med ID ${id}.`);
+        return null;
+    }
+}
+
 // Lägg till produkt
 export function addProduct(name, quantity, price, category) {
     let id = 1;
