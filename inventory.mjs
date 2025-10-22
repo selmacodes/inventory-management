@@ -14,3 +14,15 @@ export function listProducts() {
         console.log(`${p.id}: ${p.name} (${p.category}) - Antal: ${p.quantity}, Pris: ${p.price} kr`);
     });
 }
+
+// Lägg till produkt
+export function addProduct(name, quantity, price, category) {
+    let id = 1;
+    if (products.length > 0) {
+        id = products[products.length-1].id + 1;
+    }
+
+    products.push({ id, name, quantity, price, category});
+
+    console.log(`Produkt "${name}" har lagts till.`);
+}
