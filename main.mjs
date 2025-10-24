@@ -1,36 +1,61 @@
 import { listProducts, getProduct, addProduct, updateProduct, removeProduct } from "./inventory.mjs";
 
 // Lista alla produkter
-listProducts();
+console.log("Produkter i lagret:")
+console.log(listProducts());
+
 
 // Hämta en specifik produkt med ID
-console.log("Hämta produkt med ID 2")
-const product = getProduct(2);
-if (product) console.log(product);
+console.log("\nHämta produkt med ID 2")
+try {
+    const product = getProduct(2);
+    console.log(product);
+} catch (err) {
+    console.log("Fel!", err.message);
+}
 
-// Testa ett ID som inte finns
-console.log("Hämta produkt med ID 20");
-getProduct(20);
 
-// Lägg till ny produkt
-addProduct("Sax", 20, 30, "Kontorsmaterial");
+// Lägg till produkt
+console.log("\nLägg till produkten Sax, antal: 20, pris: 30:");
+try {
+    const result = addProduct("Sax", 20, 30, "Kontorsmaterial");
+    console.log(result.message);
+    console.log("\nAlla produkter i lagret efter tillägg:");
+    console.log(listProducts());
+} catch (err) {
+    console.log("Fel!", err.message);
+}
 
-console.log("Efter tillägg:")
-listProducts();
 
 // Uppdatera produkt
-console.log("Uppdatera produkt med ID 2");
-updateProduct(2, 25, 18); // Ändra antal och pris
+console.log("\nUppdatera produkt med ID 2 till antal: 25, pris: 18");
+try {
+    const result = updateProduct(2, 25, 18); // Ändra antal och pris
+    console.log(result.message);
+    console.log("\nAlla produkter i lagret efter uppdatering:")
+    console.log(listProducts());
+} catch (err) {
+    console.log("Fel!", err.message);
+}
 
-console.log("Uppdatera produkt med ID 3 (bara pris)");
-updateProduct(3, undefined, 130);
+console.log("\nUppdatera produkt med ID 3 till pris: 130");
+try {
+    const result = updateProduct(3, undefined, 130);
+    console.log(result.message);
+    console.log("\nAlla produkter i lagret efter uppdatering:")
+    console.log(listProducts());
+} catch (err) {
+    console.log("Fel!", err.message);
+}
 
-console.log("Efter uppdatering:")
-listProducts();
 
 // Ta bort produkt
 console.log("Ta bort produkt med ID 1");
-removeProduct(1);
-
-console.log("Efter borttagning:");
-listProducts();
+try {
+    const result = removeProduct(1);
+    console.log(result.message);
+    console.log("\nAlla produkter i lagret efter borttagning:");
+    console.log(listProducts());
+} catch (err) {
+    console.log("Fel!", err.message);
+}

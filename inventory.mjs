@@ -9,45 +9,54 @@ let products = [
 
 // Lista alla produkter
 export function listProducts() {
-    console.log("Produkter i lagret:");
-    products.forEach(p => {
-        console.log(`${p.id}: ${p.name} (${p.category}) - Antal: ${p.quantity}, Pris: ${p.price} kr`);
-    });
+    return products;
 }
 
 // Hämta produkt med ID
 export function getProduct(id) {
     const product = products.find(p => p.id === id);
-    if (product) {
-        return product;
-    } else {
-        console.log(`Ingen produkt hittades med ID ${id}.`);
-        return null;
-    }
+    if (!product) throw new Error(`Ingen produkt hittades med ID ${id}`);
+    return product;
 }
 
 // Lägg till produkt
 export function addProduct(name, quantity, price, category) {
+    // Guard clauses för validering
+    if (!name || typeof name !== "string") throw new Error("Ogiltigt namn!");
+    if (!Number.isInteger(quantity) || quantity < 0) throw new Error("Ogiltigt antal!");
+    if (typeof price !== "number" || price < 0) throw new Error("Ogiltigt pris!");
+    if (!category || typeof category !== "string") throw new Error("Ogiltig kategori!");
+
     let id = 1;
     if (products.length > 0) {
-        id = products[products.length-1].id + 1;
+        const lastProduct = products[products.length - 1]; // Ta sista produkten
+        id = lastProduct.id + 1; // Öka med 1
+    } else {
+        id = 1; // Om lagret är tomt får produkten ID 1
     }
 
-    products.push({ id, name, quantity, price, category});
+    const newProduct = { id, name, quantity, price, category };
+    products.push(newProduct);
 
-    console.log(`Produkt "${name}" har lagts till.`);
+    return { message: `Produkten "${name}" har lagts till.`, product: newProduct };
 }
 
 // Uppdatera produkt
 export function updateProduct(id, newQuantity, newPrice) {
     const product = products.find(p => p.id === id);
-    if (product) {
-        if (newQuantity !== undefined) product.quantity = newQuantity;
-        if (newPrice !== undefined) product.price = newPrice;
-        console.log(`Produkt "${product.name}" har uppdaterats.`);
-    } else {
-        console.log(`Ingen produkt hittades med ID ${id}.`);
+    if (!product) throw new Error(`Ingen produkt hittades med ID ${id}.`);
+
+    if (newQuantity !== undefined) {
+        if (!Number.isInteger(newQuantity) || newQuantity < 0) throw new Error("Ogiltigt antal!");
+        product.quantity = newQuantity;
     }
+
+    if (newPrice !== undefined) {
+        if (typeof newPrice !== "number" || newPrice < 0) throw new Error("Ogiltigt pris!");
+        product.price = newPrice;
+    }
+
+    return { message: `Produkt "${product.name}" har uppdaterats.`, product };
 }
 
 // Ta bort produkt
@@ -55,11 +64,10 @@ export function removeProduct(id) {
     // Hitta index för produkten med det angivna ID:t
     // Om ingen produkt hittas blir index = -1
     const index = products.findIndex(p => p.id === id);
+    if (index === -1) throw new Error(`Ingen produkt hittades med ID ${id}.`);
 
-    if (index !== -1) {
-        const removed = products.splice(index, 1);
-        console.log(`Produkt "${removed[0].name}" har tagits bort.`)
-    } else {
-        console.log(`Ingen produkt hittades med ID ${id}.`)
-    }
+    const removedArray = products.splice(index, 1);
+    const removed = removedArray[0]; // Plockar ut första (och enda) elementet
+    
+    return { message: `Produkt "${removed.name}" har tagits bort.`, product: removed };
 }
