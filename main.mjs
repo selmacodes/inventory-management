@@ -1,8 +1,12 @@
-import { listProducts, getProduct, addProduct, updateProduct, removeProduct } from "./inventory.mjs";
+import { Product, listProducts, getProduct, addProduct, updateProduct, removeProduct } from "./inventory.mjs";
 
 function showProducts(title) {
     console.log(`\n${title}`)
-    console.log(listProducts());
+    const allProducts = listProducts(); 
+    for (let i = 0; i < allProducts.length; i++) {
+        const p = allProducts[i];
+        console.log(`ID: ${p.id}, Namn: ${p.name}, Antal: ${p.quantity}, Pris: ${p.price}, Kategori: ${p.category}`);
+    }
 }
 
 // Lista alla produkter
@@ -13,7 +17,7 @@ showProducts("Produkter i lagret:");
 console.log("\nHämta produkt med ID 2")
 try {
     const product = getProduct(2);
-    console.log(product);
+    console.log(`Hittad produkt: ${product.name}, Antal: ${product.quantity}, Pris: ${product.price}`);
 } catch (err) {
     console.log("Fel!", err.message);
 }
