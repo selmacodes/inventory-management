@@ -68,5 +68,17 @@ app.put('/products/:id', (req, res) => {
     res.json(updatedProduct); // Skickar tillbaka den uppdaterade produkten som svar
 });
 
+// DELETE - Ta bort en produkt
+app.delete('/products/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const productIndex = products.findIndex(p => p.id === id);
+    if (productIndex === -1) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const deleted = products.splice(productIndex, 1)[0]; // Tar bort produkten från arrayen och sparar borttaget element
+    res.json({ message: 'Product deleted', product: deleted });
+})
+
 // Startar servern
 app.listen(3012, () => console.log('Server running on port 3012'));
