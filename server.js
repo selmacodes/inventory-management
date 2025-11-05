@@ -17,21 +17,43 @@ let products = [
     { id: 4, name: "Pärm", quantity: 25, price: 35, category: "Kontorsmaterial" },
     { id: 5, name: "Tuschpennor", quantity: 40, price: 25, category: "Kontorsmaterial" }
 ];
-
 let nextId = 6; // Nästa lediga ID
 
-// CREATE - POST /products - Lägger till en ny produkt
+
+// CREATE - POST /products - Skapa en ny produkt
 app.post('/products', (req, res) => {
     const { name, quantity, price, category } = req.body;
 
-    if (!name || !category || quantity == null || price == null) {
-        return res.status(400).json({ error: 'All fields are required' });
+    // Validering: Kontrollera att name och category finns och inte är tomma
+    if (!name || name.trim().length === 0 || !category || category.trim().length === 0) {
+        return res.status(400).json({ error: "'name' and 'category' are required and cannot be empty" });
     }
 
-    const newProduct = { id: nextId++, name, quantity, price, category };
+    // Validering: Kontrollera datatyper
+    if (typeof name !== "string" || typeof category !== "string") {
+        return res.status(400).json({ error: "'name' and 'category' must be strings" });
+    }
+
+    // Validering: Kontrollera att quantity är ett icke-negativt heltal
+    if (!Number.isInteger(quantity) || quantity < 0) {
+        return res.status(400).json({ error: "'quantity' cannot be negative and must be an integer" });
+    }
+
+    // Validering: Kontrollera att price är ett icke-negativt nummer
+    if (typeof price !== "number" || price < 0) {
+        return res.status(400).json({ error: "'price' cannot be negative and must be a number" });
+    }
+
+    // Skapa produktobjekt
+    const newProduct = { id: nextId++, name: name.trim(), quantity, price, category: category.trim() };
+
+    // Lägg till i arrayen
     products.push(newProduct);
+
+    // Skicka tillbaka med statuskod 201 (Created)
     res.status(201).json(newProduct);
 });
+
 
 // READ - GET /products - Hämtar alla produkter
 app.get('/products', (req, res) => {
