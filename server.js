@@ -97,7 +97,7 @@ app.put("/products/:id", (req, res) => {
     if (name !== undefined) {
         // Kontrollera att det är en sträng och inte tom
         if (typeof name !== "string" || name.trim().length === 0) {
-            return res.status(400).json({ error: "'name' cannot be empty"});
+            return res.status(400).json({ error: "'name' cannot be empty" });
         }
         product.name = name.trim(); // Uppdaterar produktens namn och tar bort extra mellanslag
     }
@@ -105,7 +105,7 @@ app.put("/products/:id", (req, res) => {
     // Validera och uppdatera 'category' om det skickas med
     if (category !== undefined) {
         if (typeof category !== "string" || category.trim().length === 0) {
-            return res.status(400).json({ error: "'category' cannot be empty"});
+            return res.status(400).json({ error: "'category' cannot be empty" });
         }
         product.category = category.trim();
     }
@@ -114,7 +114,7 @@ app.put("/products/:id", (req, res) => {
     if (quantity !== undefined) {
         // Kontrollera att det är ett heltal och inte negativt
         if (!Number.isInteger(quantity) || quantity < 0) {
-            return res.status(400).json({ error: "'quantity' cannot be negative and must be an integer"});
+            return res.status(400).json({ error: "'quantity' cannot be negative and must be an integer" });
         }
         product.quantity = quantity;
     }
@@ -123,7 +123,7 @@ app.put("/products/:id", (req, res) => {
     if (price !== undefined) {
         // Kontrollera att det är ett nummer och inte negativt
         if (typeof price !== "number" || price < 0) {
-            return res.status(400).json({ error: "'price' cannot be negative and must be a number"});
+            return res.status(400).json({ error: "'price' cannot be negative and must be a number" });
         }
         product.price = price;
     }
@@ -136,14 +136,21 @@ app.put("/products/:id", (req, res) => {
 // DELETE - DELETE /products/:id - Ta bort en produkt
 app.delete("/products/:id", (req, res) => {
     const id = parseInt(req.params.id);
-    const productIndex = products.findIndex(p => p.id === id);
-    if (productIndex === -1) {
+
+    if (Number.isNaN(id)) {
+        return res.status(400).json({ error: "ID parameter must be a number" });
+    }
+
+    // Hitta produktens index i arrayen baserat på ID
+    const index = products.findIndex(p => p.id === id);
+
+    if (index === -1) {
         return res.status(404).json({ error: "Product not found" });
     }
 
-    const deleted = products.splice(productIndex, 1)[0]; // Tar bort produkten från arrayen och sparar borttaget element
+    const deleted = products.splice(index, 1)[0]; // Ta bort produkten från arrayen och spara den borttagna produkten
     res.json({ message: "Product deleted", product: deleted });
-})
+});
 
 // Startar servern
 app.listen(3012, () => console.log("Server running on port 3012"));
