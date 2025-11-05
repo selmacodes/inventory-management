@@ -73,35 +73,65 @@ app.get("/products/:id", (req, res) => {
     if (!product) {
         return res.status(404).json({ error: "Product not found" });
     }
-    
+
     res.json(product);
 });
 
 // UPDATE - PUT /products/:id - Uppdatera en befintlig produkt
 app.put("/products/:id", (req, res) => {
     const id = parseInt(req.params.id);
-    const productIndex = products.findIndex(p => p.id === id); // Hittar indexet i arrayen där produkten med ID:t finns
-    // findIndex() returnerar -1 om inget element matchar callback-funktionen (villkoret)
-    if (productIndex === -1) {
+
+    // Validering: Kontrollera att ID är ett nummer
+    if (Number.isNaN(id)) {
+        return res.status(400).json({ error: "ID parameter must be a number" });
+    }
+
+    const product = products.find(p => p.id === id); // Letar upp produkten i arrayen products
+    if (!product) {
         return res.status(404).json({ error: "Product not found" });
     }
 
     const { name, quantity, price, category } = req.body; // Hämtar värdena från requestens body
 
-    // Validering
-    if (quantity !== undefined && (!Number.isInteger(quantity) || quantity < 0)) {
-        return res.status(400).json({ error: "Invalid quantity" });
-    }
-    if (price !== undefined && (typeof price !== "number" || price < 0)) {
-        return res.status(400).json({ error: "Invalid price" });
+    // Validera och uppdatera 'name' om det skickas med
+    if (name !== undefined) {
+        // Kontrollera att det är en sträng och inte tom
+        if (typeof name !== "string" || name.trim().length === 0) {
+            return res.status(400).json({ error: "'name' cannot be empty"});
+        }
+        product.name = name.trim(); // Uppdaterar produktens namn och tar bort extra mellanslag
     }
 
-    // Skapar en ny produkt genom att kopiera den gamla och uppdatera med värden från req.body
-    const updatedProduct = { ...products[productIndex], ...req.body };
+    // Validera och uppdatera 'category' om det skickas med
+    if (category !== undefined) {
+        if (typeof category !== "string" || category.trim().length === 0) {
+            return res.status(400).json({ error: "'category' cannot be empty"});
+        }
+        product.category = category.trim();
+    }
 
-    products[productIndex] = updatedProduct; // Sparar den uppdaterade produkten tillbaka i arrayen
-    res.json(updatedProduct); // Skickar tillbaka den uppdaterade produkten som svar
+    // Validera och uppdatera 'quantity' om det skickas med
+    if (quantity !== undefined) {
+        // Kontrollera att det är ett heltal och inte negativt
+        if (!Number.isInteger(quantity) || quantity < 0) {
+            return res.status(400).json({ error: "'quantity' cannot be negative and must be an integer"});
+        }
+        product.quantity = quantity;
+    }
+
+    // Validera och uppdatera 'price' om det skickas med
+    if (price !== undefined) {
+        // Kontrollera att det är ett nummer och inte negativt
+        if (typeof price !== "number" || price < 0) {
+            return res.status(400).json({ error: "'price' cannot be negative and must be a number"});
+        }
+        product.price = price;
+    }
+
+    // Skicka tillbaka den uppdaterade produkten som JSON
+    res.json(product);
 });
+
 
 // DELETE - DELETE /products/:id - Ta bort en produkt
 app.delete("/products/:id", (req, res) => {
