@@ -4,7 +4,7 @@
 // =========================================
 
 // Express är ett ramverk för att bygga API:er i Node.js
-const express = require('express');
+const express = require("express");
 const app = express();
 
 app.use(express.json()); // Middleware: Gör att servern kan läsa JSON-data i request body
@@ -21,7 +21,7 @@ let nextId = 6; // Nästa lediga ID
 
 
 // CREATE - POST /products - Skapa en ny produkt
-app.post('/products', (req, res) => {
+app.post("/products", (req, res) => {
     const { name, quantity, price, category } = req.body;
 
     // Validering: Kontrollera att name och category finns och inte är tomma
@@ -55,38 +55,45 @@ app.post('/products', (req, res) => {
 });
 
 
-// READ - GET /products - Hämtar alla produkter
-app.get('/products', (req, res) => {
+// READ - GET /products - Hämta alla produkter
+app.get("/products", (req, res) => {
     res.json(products);
 });
 
 // READ - GET /products/:id - Hämtar en specifik produkt
-app.get('/products/:id', (req, res) => {
+app.get("/products/:id", (req, res) => {
     const id = parseInt(req.params.id); // Hämtar ID från URL-parametern och omvandlar till heltal
+
+    // Validering: Kontrollera att id är ett nummer
+    if (Number.isNaN(id)) {
+        return res.status(400).json({ error: "ID parameter must be a number" });
+    }
+
     const product = products.find(p => p.id === id); // Söker i arrayen efter produkten med det ID:t
     if (!product) {
-        return res.status(404).json({ error: 'Product not found' });
+        return res.status(404).json({ error: "Product not found" });
     }
+    
     res.json(product);
 });
 
 // UPDATE - PUT /products/:id - Uppdatera en befintlig produkt
-app.put('/products/:id', (req, res) => {
+app.put("/products/:id", (req, res) => {
     const id = parseInt(req.params.id);
     const productIndex = products.findIndex(p => p.id === id); // Hittar indexet i arrayen där produkten med ID:t finns
     // findIndex() returnerar -1 om inget element matchar callback-funktionen (villkoret)
     if (productIndex === -1) {
-        return res.status(404).json({ error: 'Product not found' });
+        return res.status(404).json({ error: "Product not found" });
     }
 
     const { name, quantity, price, category } = req.body; // Hämtar värdena från requestens body
 
     // Validering
     if (quantity !== undefined && (!Number.isInteger(quantity) || quantity < 0)) {
-        return res.status(400).json({ error: 'Invalid quantity' });
+        return res.status(400).json({ error: "Invalid quantity" });
     }
-    if (price !== undefined && (typeof price !== 'number' || price < 0)) {
-        return res.status(400).json({ error: 'Invalid price' });
+    if (price !== undefined && (typeof price !== "number" || price < 0)) {
+        return res.status(400).json({ error: "Invalid price" });
     }
 
     // Skapar en ny produkt genom att kopiera den gamla och uppdatera med värden från req.body
@@ -97,16 +104,16 @@ app.put('/products/:id', (req, res) => {
 });
 
 // DELETE - DELETE /products/:id - Ta bort en produkt
-app.delete('/products/:id', (req, res) => {
+app.delete("/products/:id", (req, res) => {
     const id = parseInt(req.params.id);
     const productIndex = products.findIndex(p => p.id === id);
     if (productIndex === -1) {
-        return res.status(404).json({ error: 'Product not found' });
+        return res.status(404).json({ error: "Product not found" });
     }
 
     const deleted = products.splice(productIndex, 1)[0]; // Tar bort produkten från arrayen och sparar borttaget element
-    res.json({ message: 'Product deleted', product: deleted });
+    res.json({ message: "Product deleted", product: deleted });
 })
 
 // Startar servern
-app.listen(3012, () => console.log('Server running on port 3012'));
+app.listen(3012, () => console.log("Server running on port 3012"));
