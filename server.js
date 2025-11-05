@@ -1,9 +1,15 @@
+// =========================================
+// Inventory Management System (Backend)
+// Byggt med Node.js + Express
+// =========================================
+
+// Express är ett ramverk för att bygga API:er i Node.js
 const express = require('express');
 const app = express();
 
-app.use(express.json());
+app.use(express.json()); // Middleware: Gör att servern kan läsa JSON-data i request body
 
-// Lager som en array
+// Lager som en array i minnet
 let products = [
     { id: 1, name: "Pennor", quantity: 50, price: 2, category: "Kontorsmaterial" },
     { id: 2, name: "Anteckningsblock", quantity: 30, price: 15, category: "Kontorsmaterial" },
@@ -14,7 +20,7 @@ let products = [
 
 let nextId = 6; // Nästa lediga ID
 
-// CREATE - Lägger till en ny produkt
+// CREATE - POST /products - Lägger till en ny produkt
 app.post('/products', (req, res) => {
     const { name, quantity, price, category } = req.body;
 
@@ -27,12 +33,12 @@ app.post('/products', (req, res) => {
     res.status(201).json(newProduct);
 });
 
-// READ all - Hämtar alla produkter
+// READ - GET /products - Hämtar alla produkter
 app.get('/products', (req, res) => {
     res.json(products);
 });
 
-// READ one - Hämtar en produkt med specifikt ID
+// READ - GET /products/:id - Hämtar en specifik produkt
 app.get('/products/:id', (req, res) => {
     const id = parseInt(req.params.id); // Hämtar ID från URL-parametern och omvandlar till heltal
     const product = products.find(p => p.id === id); // Söker i arrayen efter produkten med det ID:t
@@ -42,7 +48,7 @@ app.get('/products/:id', (req, res) => {
     res.json(product);
 });
 
-// UPDATE - Uppdatera antal och/eller pris
+// UPDATE - PUT /products/:id - Uppdatera en befintlig produkt
 app.put('/products/:id', (req, res) => {
     const id = parseInt(req.params.id);
     const productIndex = products.findIndex(p => p.id === id); // Hittar indexet i arrayen där produkten med ID:t finns
@@ -68,7 +74,7 @@ app.put('/products/:id', (req, res) => {
     res.json(updatedProduct); // Skickar tillbaka den uppdaterade produkten som svar
 });
 
-// DELETE - Ta bort en produkt
+// DELETE - DELETE /products/:id - Ta bort en produkt
 app.delete('/products/:id', (req, res) => {
     const id = parseInt(req.params.id);
     const productIndex = products.findIndex(p => p.id === id);
