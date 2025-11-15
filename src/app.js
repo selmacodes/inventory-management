@@ -1,37 +1,31 @@
 // =========================================
 // Inventory Management System (Backend)
-// Byggt med Node.js + Express
+// Node.js + Express + PostgreSQL
 // =========================================
 
+
+// Läser in miljövariabler från .env
 require("dotenv").config();
-const express = require("express");
-const { Pool } = require("pg");
 
-const app = express();
-app.use(express.json());
+const express = require("express"); // Importerar Express-ramverket
+const { Pool } = require("pg");     // Importerar PostgreSQL-klienten
 
+const app = express();              // Skapar en Express-app
+
+app.use(express.json()); // Middleware för att kunna läsa JSON i request body
+
+// PostgreSQL Connection Pool
 const pool = new Pool({
-    host: "localhost",
-    port: 5432,
-    database: process.env.DATABASE_NAME,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD
+    host: "localhost",              // Databasens host
+    port: 5432,                     // Databasens port
+    database: process.env.DATABASE_NAME, // Namn på databasen från .env
+    user: process.env.DATABASE_USER,     // Databasanvändare från .env
+    password: process.env.DATABASE_PASSWORD // Lösenord från .env
 });
-
-/*
-// Lager som en array i minnet
-let products = [
-    { id: 1, name: "Pennor", quantity: 50, price: 2, category: "Kontorsmaterial" },
-    { id: 2, name: "Anteckningsblock", quantity: 30, price: 15, category: "Kontorsmaterial" },
-    { id: 3, name: "Häftapparat", quantity: 10, price: 120, category: "Kontorsmaterial" },
-    { id: 4, name: "Pärm", quantity: 25, price: 35, category: "Kontorsmaterial" },
-    { id: 5, name: "Tuschpennor", quantity: 40, price: 25, category: "Kontorsmaterial" }
-];
-let nextId = 6; // Nästa lediga ID
 
 
 // CREATE - POST /products - Skapa en ny produkt
-app.post("/products", (req, res) => {
+app.post("/products", async (req, res) => {
     const { name, quantity, price, category } = req.body;
 
     // Validering: Kontrollera att name och category finns och inte är tomma
@@ -54,41 +48,44 @@ app.post("/products", (req, res) => {
         return res.status(400).json({ error: "'price' cannot be negative and must be a number" });
     }
 
-    // Skapa produktobjekt
-    const newProduct = { id: nextId++, name: name.trim(), quantity, price, category: category.trim() };
+    // SQL-fråga: Infogar produkten i databasen och returnerar den nya raden
+    const result = await pool.query(
+        "INSERT INTO products (name, quantity, price, category) VALUES ($1, $2, $3, $4) RETURNING *",
+        [name, quantity, price, category]
+    );
 
-    // Lägg till i arrayen
-    products.push(newProduct);
-
-    // Skicka tillbaka med statuskod 201 (Created)
-    res.status(201).json(newProduct);
+    // Skicka tillbaka den skapade produkten med statuskod 201 (Created)
+    res.status(201).json(result.rows[0]);
 });
 
 
 // READ - GET /products - Hämta alla produkter
-app.get("/products", (req, res) => {
-    res.json(products);
+app.get("/products", async (req, res) => {
+    // SQL-fråga: Hämta alla produkter, sorterade efter id
+    const result = await pool.query("SELECT * FROM products ORDER BY id ASC");
+    res.json(result.rows);
 });
 
+
 // READ - GET /products/:id - Hämtar en specifik produkt
-app.get("/products/:id", (req, res) => {
-    const id = parseInt(req.params.id); // Hämtar ID från URL-parametern och omvandlar till heltal
+app.get("/products/:id", async (req, res) => {
+    const id = parseInt(req.params.id); // Konvertera URL-parametern till ett heltal
 
     // Validering: Kontrollera att id är ett nummer
     if (Number.isNaN(id)) {
         return res.status(400).json({ error: "ID parameter must be a number" });
     }
 
-    const product = products.find(p => p.id === id); // Söker i arrayen efter produkten med det ID:t
-    if (!product) {
-        return res.status(404).json({ error: "Product not found" });
-    }
+    // SQL-fråga: Hämta produkt med specifikt ID
+    const result = await pool.query("SELECT * FROM products WHERE id = $1", [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: "Product not found" });
 
-    res.json(product);
+    res.json(result.rows[0]);
 });
 
+
 // UPDATE - PUT /products/:id - Uppdatera en befintlig produkt
-app.put("/products/:id", (req, res) => {
+app.put("/products/:id", async (req, res) => {
     const id = parseInt(req.params.id);
 
     // Validering: Kontrollera att ID är ett nummer
@@ -96,12 +93,7 @@ app.put("/products/:id", (req, res) => {
         return res.status(400).json({ error: "ID parameter must be a number" });
     }
 
-    const product = products.find(p => p.id === id); // Letar upp produkten i arrayen products
-    if (!product) {
-        return res.status(404).json({ error: "Product not found" });
-    }
-
-    const { name, quantity, price, category } = req.body; // Hämtar värdena från requestens body
+    let { name, quantity, price, category } = req.body; // Hämtar värdena från requestens body
 
     // Validera och uppdatera 'name' om det skickas med
     if (name !== undefined) {
@@ -109,7 +101,7 @@ app.put("/products/:id", (req, res) => {
         if (typeof name !== "string" || name.trim().length === 0) {
             return res.status(400).json({ error: "'name' cannot be empty" });
         }
-        product.name = name.trim(); // Uppdaterar produktens namn och tar bort extra mellanslag
+        name = name.trim(); // Uppdaterar produktens namn och tar bort extra mellanslag
     }
 
     // Validera och uppdatera 'category' om det skickas med
@@ -117,7 +109,7 @@ app.put("/products/:id", (req, res) => {
         if (typeof category !== "string" || category.trim().length === 0) {
             return res.status(400).json({ error: "'category' cannot be empty" });
         }
-        product.category = category.trim();
+        category = category.trim();
     }
 
     // Validera och uppdatera 'quantity' om det skickas med
@@ -126,7 +118,6 @@ app.put("/products/:id", (req, res) => {
         if (!Number.isInteger(quantity) || quantity < 0) {
             return res.status(400).json({ error: "'quantity' cannot be negative and must be an integer" });
         }
-        product.quantity = quantity;
     }
 
     // Validera och uppdatera 'price' om det skickas med
@@ -135,33 +126,46 @@ app.put("/products/:id", (req, res) => {
         if (typeof price !== "number" || price < 0) {
             return res.status(400).json({ error: "'price' cannot be negative and must be a number" });
         }
-        product.price = price;
     }
 
-    // Skicka tillbaka den uppdaterade produkten som JSON
-    res.json(product);
+    // SQL-fråga: Uppdatera produkten, använd COALESCE för att behålla gamla värden om inget skickas
+    const result = await pool.query(
+        `
+        UPDATE products
+        SET
+            name = COALESCE($1, name),
+            quantity = COALESCE($2, quantity),
+            price = COALESCE($3, price),
+            category = COALESCE($4, category)
+        WHERE id = $5
+        RETURNING *;
+        `,
+        [name, quantity, price, category, id]
+    );
+
+    // Om ingen produkt uppdaterades -> 404
+    if (result.rows.length === 0) return res.status(404).json({ error: "Product not found" });
+
+    // Skicka tillbaka den uppdaterade produkten
+    res.json(result.rows[0]);
 });
 
 
 // DELETE - DELETE /products/:id - Ta bort en produkt
-app.delete("/products/:id", (req, res) => {
+app.delete("/products/:id", async (req, res) => {
     const id = parseInt(req.params.id);
 
     if (Number.isNaN(id)) {
         return res.status(400).json({ error: "ID parameter must be a number" });
     }
 
-    // Hitta produktens index i arrayen baserat på ID
-    const index = products.findIndex(p => p.id === id);
+    // SQL-fråga: Ta bort produkt med specifikt ID och returnera raden
+    const result = await pool.query("DELETE FROM products WHERE id = $1 RETURNING *", [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: "Product not found" });
 
-    if (index === -1) {
-        return res.status(404).json({ error: "Product not found" });
-    }
-
-    const deleted = products.splice(index, 1)[0]; // Ta bort produkten från arrayen och spara den borttagna produkten
-    res.json({ message: "Product deleted", product: deleted });
+    // Skickar tillbaka borttagen produkt
+    res.json({ message: "Product deleted", product: result.rows[0] });
 });
 
-// Startar servern
+// Startar servern på port 3012
 app.listen(3012, () => console.log("Server running on port 3012"));
-*/
