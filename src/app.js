@@ -8,20 +8,10 @@
 require("dotenv").config();
 
 const express = require("express"); // Importerar Express-ramverket
-const { Pool } = require("pg");     // Importerar PostgreSQL-klienten
 
 const app = express();              // Skapar en Express-app
 
 app.use(express.json()); // Middleware för att kunna läsa JSON i request body
-
-// PostgreSQL Connection Pool
-const pool = new Pool({
-    host: "localhost",              // Databasens host
-    port: 5432,                     // Databasens port
-    database: process.env.DATABASE_NAME, // Namn på databasen från .env
-    user: process.env.DATABASE_USER,     // Databasanvändare från .env
-    password: process.env.DATABASE_PASSWORD // Lösenord från .env
-});
 
 
 // CREATE - POST /products - Skapa en ny produkt
