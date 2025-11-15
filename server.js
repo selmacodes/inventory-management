@@ -3,12 +3,36 @@
 // Byggt med Node.js + Express
 // =========================================
 
+require("dotenv").config();
 // Express är ett ramverk för att bygga API:er i Node.js
 const express = require("express");
-const app = express();
+const { Pool } = require("pg");
 
+const app = express();
 app.use(express.json()); // Middleware: Gör att servern kan läsa JSON-data i request body
 
+const pool = new Pool({
+    host: "localhost",
+    port: 5432,
+    database: process.env.DATABASE_NAME,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD
+});
+
+async function testDb() {
+    try {
+        await pool.query("SELECT 1");
+        console.log("Database connection OK!")
+    } catch (err) {
+        console.error("Database connection failed:", err);
+    }
+}
+testDb();
+
+ // Startar servern
+app.listen(3012, () => console.log("Server running on port 3012"));
+
+/*
 // Lager som en array i minnet
 let products = [
     { id: 1, name: "Pennor", quantity: 50, price: 2, category: "Kontorsmaterial" },
@@ -154,3 +178,4 @@ app.delete("/products/:id", (req, res) => {
 
 // Startar servern
 app.listen(3012, () => console.log("Server running on port 3012"));
+*/
