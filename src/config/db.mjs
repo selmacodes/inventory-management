@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 const { Pool } = pkg;
 
+// Exporterar en pool som kan användas i hela appen
 export const pool = new Pool({
     host: "localhost",              // Databasens host
     port: 5432,                     // Databasens port
