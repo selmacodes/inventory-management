@@ -52,17 +52,19 @@ router.get("/:id", async (req, res) => {
 
 // POST /products - Skapa ny produkt
 router.post("/", async (req, res) => {
-    const { name, quantity, price, category } = req.body;
+    let { name, quantity, price, category } = req.body;
 
-    // Validering: Kontrollera att name och category finns och inte är tomma
-    if (!name || name.trim().length === 0 || !category || category.trim().length === 0) {
-        return res.status(400).json({ error: "'name' and 'category' are required and cannot be empty" });
+    // Validering: Kontrollera att name och category finns, är strängar och inte tomma
+    if (typeof name !== "string" || name.trim().length === 0) {
+        return res.status(400).json({ error: "'name' is required and must be a non-empty string" });
+    }
+    if (typeof category !== "string" || category.trim().length === 0) {
+        return res.status(400).json({ error: "'category' is required and must be a non-empty string" });
     }
 
-    // Validering: Kontrollera datatyper
-    if (typeof name !== "string" || typeof category !== "string") {
-        return res.status(400).json({ error: "'name' and 'category' must be strings" });
-    }
+    // Trimma strängar för att ta bort extra mellanslag
+    name = name.trim();
+    category = category.trim();
 
     // Validering: Kontrollera att quantity är ett icke-negativt heltal
     if (!Number.isInteger(quantity) || quantity < 0) {
