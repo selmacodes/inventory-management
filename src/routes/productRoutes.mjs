@@ -57,7 +57,7 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
     const { errors, trimmedData } = validateProductData(req.body, false); // false = skapa
 
-    // Om validering misslyckas
+    // Returnera valideringsfel till klienten om det finns några
     if (errors.length > 0) {
         return res.status(400).json({ errors });
     }

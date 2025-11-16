@@ -1,4 +1,6 @@
-// Validerar och trimmar produktdata
+// Validerar produktdata för både skapande (POST) och uppdatering (PUT)
+// isUpdate = false innebär att alla fält krävs (POST)
+// isUpdate = true innebär att fält kan saknas och uppdateras delvis (PUT)
 export function validateProductData({ name, quantity, price, category }, isUpdate = false) {
     const errors = [];
 
@@ -36,5 +38,4 @@ export function validateProductData({ name, quantity, price, category }, isUpdat
 
     // Returnerar både fel och trimmade värden
     return { errors, trimmedData: { name, quantity, price, category } };
-
 }
