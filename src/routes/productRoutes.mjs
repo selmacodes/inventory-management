@@ -15,11 +15,16 @@ const router = express.Router();
 
 // GET /products - Hämta alla produkter
 router.get("/", async (req, res) => {
-    // Anropar repository-funktion som hämtar alla produkter från databasen
-    const products = await getAllProducts();
+    try {
+        // Anropar repository-funktion som hämtar alla produkter från databasen
+        const products = await getAllProducts();
 
-    // Skickar tillbaka produkterna som JSON
-    res.json(products);
+        // Skickar tillbaka produkterna som JSON
+        res.json(products);
+    } catch (err) {
+        console.error("DB ERROR - getAllProducts;", err);
+        res.status(500).json({ error: "Failed to fetch products" });
+    }
 });
 
 // GET /products/:id - Hämta specifik produkt
@@ -31,13 +36,18 @@ router.get("/:id", async (req, res) => {
         return res.status(400).json({ error: "ID parameter must be a number" });
     }
 
-    // Hämta produkten med det specifika ID:t
-    const product = await getProductById(id);
+    try {
+        // Hämta produkten med det specifika ID:t
+        const product = await getProductById(id);
 
-    // Om ingen produkt hittas, skicka 404
-    if (!product) return res.status(404).json({ error: "Product not found" });
+        // Om ingen produkt hittas, skicka 404
+        if (!product) return res.status(404).json({ error: "Product not found" });
 
-    res.json(product);
+        res.json(product);
+    } catch (err) {
+        console.error(`DB ERROR - getProductById (ID: ${id}):`, err);
+        res.status(500).json({ error: "Failed to fetch product" });
+    }
 });
 
 // POST /products - Skapa ny produkt
@@ -64,11 +74,16 @@ router.post("/", async (req, res) => {
         return res.status(400).json({ error: "'price' cannot be negative and must be a number" });
     }
 
-    // Skapa ny produkt i databasen
-    const product = await createProduct({ name, quantity, price, category });
+    try {
+        // Skapa ny produkt i databasen
+        const product = await createProduct({ name, quantity, price, category });
 
-    // Skicka tillbaka den nyinlagda produkten med statuskod 201 (Created)
-    res.status(201).json(product);
+        // Skicka tillbaka den nyinlagda produkten med statuskod 201 (Created)
+        res.status(201).json(product);
+    } catch (err) {
+        console.error("DB ERROR - createProducts;", err);
+        res.status(500).json({ error: "Failed to create product" });
+    }
 });
 
 // PUT /products/:id - Uppdatera en befintlig produkt
@@ -79,48 +94,41 @@ router.put("/:id", async (req, res) => {
     if (Number.isNaN(id)) {
         return res.status(400).json({ error: "ID parameter must be a number" });
     }
-    
+
     let { name, quantity, price, category } = req.body; // Hämtar värdena från requestens body
 
-    // Validera och uppdatera 'name' om det skickas med
-    if (name !== undefined) {
-        // Kontrollera att det är en sträng och inte tom
-        if (typeof name !== "string" || name.trim().length === 0) {
-            return res.status(400).json({ error: "'name' cannot be empty" });
-        }
-        name = name.trim(); // Uppdaterar produktens namn och tar bort extra mellanslag
+    // Validera indata innan uppdatering
+    if (name !== undefined && (typeof name !== "string" || name.trim().length === 0)) {
+        return res.status(400).json({ error: "'name' cannot be empty" });
     }
 
-    // Validera och uppdatera 'category' om det skickas med
-    if (category !== undefined) {
-        if (typeof category !== "string" || category.trim().length === 0) {
-            return res.status(400).json({ error: "'category' cannot be empty" });
-        }
-        category = category.trim();
+    if (category !== undefined && (typeof category !== "string" || category.trim().length === 0)) {
+        return res.status(400).json({ error: "'category' cannot be empty" });
     }
 
-    // Validera och uppdatera 'quantity' om det skickas med
-    if (quantity !== undefined) {
-        // Kontrollera att det är ett heltal och inte negativt
-        if (!Number.isInteger(quantity) || quantity < 0) {
-            return res.status(400).json({ error: "'quantity' cannot be negative and must be an integer" });
-        }
+    if (quantity !== undefined && (!Number.isInteger(quantity) || quantity < 0)) {
+        return res.status(400).json({ error: "'quantity' cannot be negative and must be an integer" });
     }
 
-    // Validera och uppdatera 'price' om det skickas med
-    if (price !== undefined) {
-        // Kontrollera att det är ett nummer och inte negativt
-        if (typeof price !== "number" || price < 0) {
-            return res.status(400).json({ error: "'price' cannot be negative and must be a number" });
-        }
+    if (price !== undefined && (typeof price !== "number" || price < 0)) {
+        return res.status(400).json({ error: "'price' cannot be negative and must be a number" });
     }
 
-    // Anropa repository-funktionen som använder COALESCE för att behålla gamla värden
-    const product = await updateProduct(id, { name, quantity, price, category });
+    // Trimma strängar
+    if (name !== undefined) name = name.trim();
+    if (category !== undefined) category = category.trim();
 
-    if (!product) return res.status(404).json({ error: "Product not found" });
+    try {
+        // Uppdatera produkt via repository
+        const product = await updateProduct(id, { name, quantity, price, category });
 
-    res.json(product);
+        if (!product) return res.status(404).json({ error: "Product not found" });
+
+        res.json(product);
+    } catch (err) {
+        console.error(`DB ERROR - updateProduct (ID: ${id});`, err);
+        res.status(500).json({ error: "Failed to update product" });
+    }
 });
 
 // DELETE /products/:id - Ta bort produkt
@@ -131,11 +139,17 @@ router.delete("/:id", async (req, res) => {
         return res.status(400).json({ error: "ID parameter must be a number" });
     }
 
-    // Ta bort produkten med angivet ID
-    const product = await deleteProduct(id);
+    try {
+        // Ta bort produkten med angivet ID
+        const product = await deleteProduct(id);
 
-    if (!product) return res.status(404).json({ error: "Product not found" });
-    res.json({ message: "Product deleted", product });
+        if (!product) return res.status(404).json({ error: "Product not found" });
+
+        res.json({ message: "Product deleted", product });
+    } catch (err) {
+        console.error(`DB ERROR - deleteProduct (ID: ${id});`, err);
+        res.status(500).json({ error: "Failed to delete product" });
+    }
 });
 
 // Exporterar router för att kunna användas i app.mjs
