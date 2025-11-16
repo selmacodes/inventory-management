@@ -22,7 +22,7 @@ router.get("/", async (req, res) => {
         // Skickar tillbaka produkterna som JSON
         res.json(products);
     } catch (err) {
-        console.error("DB ERROR - getAllProducts;", err);
+        console.error("DB ERROR - getAllProducts:", err);
         res.status(500).json({ error: "Failed to fetch products" });
     }
 });
@@ -54,6 +54,10 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
     let { name, quantity, price, category } = req.body;
 
+    // Trimma strängar innan validering, så " " inte godkänns
+    if (typeof name === "string") name = name.trim();
+    if (typeof category === "string") category = category.trim();
+
     // Validering: Kontrollera att name och category finns, är strängar och inte tomma
     if (typeof name !== "string" || name.trim().length === 0) {
         return res.status(400).json({ error: "'name' is required and must be a non-empty string" });
@@ -62,16 +66,10 @@ router.post("/", async (req, res) => {
         return res.status(400).json({ error: "'category' is required and must be a non-empty string" });
     }
 
-    // Trimma strängar för att ta bort extra mellanslag
-    name = name.trim();
-    category = category.trim();
-
-    // Validering: Kontrollera att quantity är ett icke-negativt heltal
+    // Validering: quantity och price
     if (!Number.isInteger(quantity) || quantity < 0) {
         return res.status(400).json({ error: "'quantity' cannot be negative and must be an integer" });
     }
-
-    // Validering: Kontrollera att price är ett icke-negativt nummer
     if (typeof price !== "number" || price < 0) {
         return res.status(400).json({ error: "'price' cannot be negative and must be a number" });
     }
@@ -83,12 +81,12 @@ router.post("/", async (req, res) => {
         // Skicka tillbaka den nyinlagda produkten med statuskod 201 (Created)
         res.status(201).json(product);
     } catch (err) {
-        console.error("DB ERROR - createProducts;", err);
+        console.error("DB ERROR - createProducts:", err);
         res.status(500).json({ error: "Failed to create product" });
     }
 });
 
-// PUT /products/:id - Uppdatera en befintlig produkt
+// PUT /products/:id - Uppdatera befintlig produkt
 router.put("/:id", async (req, res) => {
     const id = parseInt(req.params.id);
 
@@ -99,26 +97,23 @@ router.put("/:id", async (req, res) => {
 
     let { name, quantity, price, category } = req.body; // Hämtar värdena från requestens body
 
+    // Trimma strängar
+    if (name !== undefined) name = name.trim();
+    if (category !== undefined) category = category.trim();
+
     // Validera indata innan uppdatering
     if (name !== undefined && (typeof name !== "string" || name.trim().length === 0)) {
         return res.status(400).json({ error: "'name' cannot be empty" });
     }
-
     if (category !== undefined && (typeof category !== "string" || category.trim().length === 0)) {
         return res.status(400).json({ error: "'category' cannot be empty" });
     }
-
     if (quantity !== undefined && (!Number.isInteger(quantity) || quantity < 0)) {
         return res.status(400).json({ error: "'quantity' cannot be negative and must be an integer" });
     }
-
     if (price !== undefined && (typeof price !== "number" || price < 0)) {
         return res.status(400).json({ error: "'price' cannot be negative and must be a number" });
     }
-
-    // Trimma strängar
-    if (name !== undefined) name = name.trim();
-    if (category !== undefined) category = category.trim();
 
     try {
         // Uppdatera produkt via repository
@@ -128,7 +123,7 @@ router.put("/:id", async (req, res) => {
 
         res.json(product);
     } catch (err) {
-        console.error(`DB ERROR - updateProduct (ID: ${id});`, err);
+        console.error(`DB ERROR - updateProduct (ID: ${id}):`, err);
         res.status(500).json({ error: "Failed to update product" });
     }
 });
@@ -149,7 +144,7 @@ router.delete("/:id", async (req, res) => {
 
         res.json({ message: "Product deleted", product });
     } catch (err) {
-        console.error(`DB ERROR - deleteProduct (ID: ${id});`, err);
+        console.error(`DB ERROR - deleteProduct (ID: ${id}):`, err);
         res.status(500).json({ error: "Failed to delete product" });
     }
 });
