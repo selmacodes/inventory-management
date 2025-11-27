@@ -7,9 +7,9 @@ const { Pool } = pkg;
 
 // Exporterar en pool som kan användas i hela appen
 export const pool = new Pool({
-    host: "localhost",              // Databasens host
-    port: 5432,                     // Databasens port
-    database: process.env.DATABASE_NAME, // Namn på databasen från .env
-    user: process.env.DATABASE_USER,     // Databasanvändare från .env
-    password: process.env.DATABASE_PASSWORD // Lösenord från .env
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
 });

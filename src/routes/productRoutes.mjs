@@ -36,7 +36,7 @@ router.get("/:id", async (req, res) => {
 
     // Validering: Kontrollera att ID är ett nummer
     if (Number.isNaN(id)) {
-        return res.status(400).json({ error: "ID parameter must be a number" });
+        return res.status(400).json({ error: "ID must be a number" });
     }
 
     try {
@@ -58,9 +58,7 @@ router.post("/", async (req, res) => {
     const { errors, trimmedData } = validateProductData(req.body, false); // false = skapa
 
     // Returnera valideringsfel till klienten om det finns några
-    if (errors.length > 0) {
-        return res.status(400).json({ errors });
-    }
+    if (errors.length > 0) return res.status(400).json({ errors });
 
     try {
         // Skapa ny produkt i databasen
@@ -79,14 +77,17 @@ router.put("/:id", async (req, res) => {
     const id = parseInt(req.params.id);
 
     if (Number.isNaN(id)) {
-        return res.status(400).json({ error: "ID parameter must be a number" });
+        return res.status(400).json({ error: "ID must be a number" });
+    }
+
+    // Kolla om body är tom
+    if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({ error: "At least one field must be provided for update" })
     }
 
     const { errors, trimmedData } = validateProductData(req.body, true); // true = uppdatera
 
-    if (errors.length > 0) {
-        return res.status(400).json({ errors });
-    }
+    if (errors.length > 0) return res.status(400).json({ errors });
 
     try {
         const product = await updateProduct(id, trimmedData);
@@ -103,7 +104,7 @@ router.delete("/:id", async (req, res) => {
     const id = parseInt(req.params.id);
 
     if (Number.isNaN(id)) {
-        return res.status(400).json({ error: "ID parameter must be a number" });
+        return res.status(400).json({ error: "ID must be a number" });
     }
 
     try {

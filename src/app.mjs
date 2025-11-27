@@ -4,13 +4,23 @@ dotenv.config();
 
 import express from "express";
 
+// Importerar routrar
 import productRouter from "./routes/productRoutes.mjs";
+import supplierRouter from "./routes/supplierRoutes.mjs"
+
+import { setupDatabase } from "./config/setupDatabase.mjs";
 
 const app = express();
-
 app.use(express.json()); // Middleware för att kunna läsa JSON i request body
 
-app.use("/products", productRouter); // Kopplar produkt-routern till /products
+setupDatabase().catch(err => {
+    console.error("DB setup failed:", err);
+});
 
-// Startar servern på port 3012
-app.listen(3012, () => console.log("Server running on port 3012"));
+// Koppla routrar
+app.use("/products", productRouter);
+app.use("/suppliers", supplierRouter);
+
+app.listen(process.env.PORT, () => {
+    console.log(`Server running on port ${process.env.PORT}`);
+});

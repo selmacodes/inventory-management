@@ -1,75 +1,101 @@
 // Hanterar alla databasanrop för produkter
 import { pool } from "../config/db.mjs";
 
-// Hämta alla produkter
-export const getAllProducts = async () => {
+// Hämta alla produkter med leverantörsinformation
+export async function getAllProducts() {
     try {
-        // Kör en SELECT-fråga som returnerar alla produkter sorterade efter ID
-        const result = await pool.query("SELECT * FROM products ORDER BY id ASC");
+        const result = await pool.query(`
+            SELECT p.*, 
+                jsonb_build_object(
+                    'id', s.id, 
+                    'name', s.name, 
+                    'contact_person', s.contact_person,
+                    'email', s.email, 
+                    'phone', s.phone, 
+                    'country', s.country
+                ) AS supplier
+            FROM products p
+            LEFT JOIN suppliers s ON p.supplier_id = s.id
+            ORDER BY p.id ASC
+        `);
         return result.rows;
     } catch (err) {
         console.error("DB ERROR - getAllProducts:", err);
         throw err; // Skickas vidare till routen som svarar med felkod
     }
-};
+}
 
-// Hämta produkt efter ID
-export const getProductById = async (id) => {
+// Hämta produkt efter ID med leverantörsinformation
+export async function getProductById(id) {
     try {
-        const result = await pool.query("SELECT * FROM products WHERE id = $1", [id]);
+        const result = await pool.query(`
+            SELECT p.*, 
+                jsonb_build_object(
+                    'id', s.id, 
+                    'name', s.name, 
+                    'contact_person', s.contact_person,
+                    'email', s.email, 
+                    'phone', s.phone, 
+                    'country', s.country
+                ) AS supplier
+            FROM products p
+            LEFT JOIN suppliers s ON p.supplier_id = s.id
+            WHERE p.id = $1
+        `, [id]);
         return result.rows[0]; // Returnerar produkten (eller undefined om den inte finns)
     } catch (err) {
-        console.error("DB ERROR - getProductById:", err);
+        console.error(`DB ERROR - getProductById (ID: ${id}):`, err);
         throw err;
     }
-};
+}
 
 // Skapa en ny produkt
-export const createProduct = async ({ name, quantity, price, category }) => {
+export async function createProduct ({ name, quantity, price, category, supplier_id }) {
     try {
         // Kör INSERT-fråga med parametrar och returnerar den nyinlagda produkten
         const result = await pool.query(
-            "INSERT INTO products (name, quantity, price, category) VALUES ($1, $2, $3, $4) RETURNING *",
-            [name, quantity, price, category]
+            `INSERT INTO products (name, quantity, price, category, supplier_id) 
+            VALUES ($1, $2, $3, $4, $5) 
+            RETURNING *`,
+            [name, quantity, price, category, supplier_id]
         );
         return result.rows[0];
     } catch (err) {
         console.error("DB ERROR - createProduct:", err);
         throw err;
     }
-};
+}
 
 // Uppdatera produkt
-export const updateProduct = async (id, { name, quantity, price, category }) => {
+export async function updateProduct (id, { name, quantity, price, category, supplier_id }) {
     try {
         // Kör UPDATE-fråga och använder COALESCE för att behålla gamla värden om inget nytt värde skickas med
-        const result = await pool.query(
-            `
+        const result = await pool.query(`
             UPDATE products
             SET
-            name = COALESCE($1, name),
-            quantity = COALESCE($2, quantity),
-            price = COALESCE($3, price),
-            category = COALESCE($4, category)
-            WHERE id = $5
-            RETURNING *;
-            `,
-            [name, quantity, price, category, id]
-        );
+                name = COALESCE($1, name),
+                quantity = COALESCE($2, quantity),
+                price = COALESCE($3, price),
+                category = COALESCE($4, category),
+                supplier_id = COALESCE($5, supplier_id)
+            WHERE id = $6
+            RETURNING *
+        `, [name, quantity, price, category, supplier_id, id]);
         return result.rows[0];
     } catch (err) {
-        console.error("DB ERROR - updateProduct:", err);
+        console.error(`DB ERROR - updateProduct (ID: ${id}):`, err);
         throw err;
     }
-};
+}
 
 // Ta bort produkt
-export const deleteProduct = async (id) => {
+export async function deleteProduct(id) {
     try {
         const result = await pool.query("DELETE FROM products WHERE id = $1 RETURNING *", [id]);
         return result.rows[0];
     } catch (err) {
-        console.error("DB ERROR - deleteProduct:", err);
+        console.error(`DB ERROR - deleteProduct (ID: ${id}):`, err);
         throw err;
     }
-};
+}
+
