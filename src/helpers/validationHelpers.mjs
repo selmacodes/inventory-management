@@ -17,7 +17,7 @@ export function validateProductData({ name, quantity, price, category, supplier_
 
     // Validering av category
     if (!isUpdate || category !== undefined) {
-        if (typeof category !== "string" || name.length === 0) {
+        if (typeof category !== "string" || category.length === 0) {
             errors.push("'category' is required and must be a non-empty string");
         }
     }
@@ -44,8 +44,7 @@ export function validateProductData({ name, quantity, price, category, supplier_
     }
 
     // Returnera errors + de trimmade/validerande värdena
-    const trimmedData = { name, quantity, price, category, supplier_id };
-    return { errors, trimmedData };
+    return { errors, trimmedData: { name, quantity, price, category, supplier_id } };
 }
 
 // Validerar och trimmar indata för leverantörer
