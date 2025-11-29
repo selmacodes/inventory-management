@@ -4,13 +4,16 @@
 export function validateProductData({ name, quantity, price, category, supplier_id }, isUpdate = false) {
     const errors = [];
 
-    // Trimma strängar först
+    // Trimma strängar först (tar bort eventuella mellanslag)
+    // Ger en ren data tidigt, enklare validering och snyggare lagring i databasen
     if (typeof name === "string") name = name.trim();
     if (typeof category === "string") category = category.trim();
 
     // Validering av name
+    // isUpdate = false -> då måste name valideras
+    // isUpdate = true -> validera bara om användaren skickar med name
     if (!isUpdate || name !== undefined) {
-        if (typeof name !== "string" || name.length === 0) {
+        if (typeof name !== "string" || name.length === 0) { // Är name en sträng och är strängen tom
             errors.push("'name' is required and must be a non-empty string");
         }
     }
