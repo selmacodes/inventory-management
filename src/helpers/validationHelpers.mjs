@@ -51,51 +51,46 @@ export function validateProductData({ name, quantity, price, category, supplier_
 export function validateSupplierData({ name, contact_person, email, phone, country }, isUpdate = false) {
     const errors = [];
 
+    // Trimma strängar först
+    if (typeof name === "string") name = name.trim();
+    if (typeof contact_person === "string") contact_person = contact_person.trim();
+    if (typeof email === "string") email = email.trim();
+    if (typeof phone === "string") phone = phone.trim();
+    if (typeof country === "string") country = country.trim();
+
     // Namn
-    // Vid CREATE: name måste finnas
-    // Vid UPDATE: validera bara om fältet skickas med
     if (!isUpdate || name !== undefined) {
-        if (typeof name !== "string" || name.trim().length === 0) {
+        if (typeof name !== "string" || name.length === 0) {
             errors.push("'name' is required and must be a non-empty string");
-        } else {
-            name = name.trim();
         } 
     }
 
     // Kontaktperson
     if (!isUpdate || contact_person !== undefined) {
-        if (typeof contact_person !== "string" || contact_person.trim().length === 0) {
+        if (typeof contact_person !== "string" || contact_person.length === 0) {
             errors.push("'contact_person' must be a non-empty string");
-        } else {
-            contact_person = contact_person.trim();
-        } 
+        }
     }
 
     // Email
     if (!isUpdate || email !== undefined) {
         if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             errors.push("'email' must be a valid email address");
-        } else {
-            email = email.trim();
         }
     }
 
     // Telefonnummer
     if (!isUpdate || phone !== undefined) {
-        if (typeof phone !== "string" || phone.trim().length < 5) {
-            errors.push("'phone' must be a string with at least 5 characters");
-        } else {
-            phone = phone.trim();
-        } 
+        if (typeof phone !== "string" || phone.length < 8) {
+            errors.push("'phone' must be a string with at least 8 characters");
+        }
     }
 
     // Land
     if (!isUpdate || country !== undefined) {
-        if (typeof country !== "string" || country.trim().length === 0) {
+        if (typeof country !== "string" || country.length === 0) {
             errors.push("'country' must be a non-empty string");
-        } else {
-            country = country.trim();
-        } 
+        }
     }
 
     return { errors, trimmedData: { name, contact_person, email, phone, country } };
