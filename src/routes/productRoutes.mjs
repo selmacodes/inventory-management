@@ -14,6 +14,7 @@ import {
 import { validateProductData } from "../helpers/validationHelpers.mjs";
 
 import { validateIdParam } from "../helpers/validateIdParam.mjs";
+import { validateNonEmptyBody } from "../helpers/validateNonEmptyBody.mjs";
 
 // Skapar en router-instans från Express för att definiera routes
 const router = express.Router();
@@ -69,13 +70,8 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /products/:id - Uppdatera befintlig produkt
-router.put("/:id", validateIdParam, async (req, res) => {
+router.put("/:id", validateIdParam, validateNonEmptyBody, async (req, res) => {
     const id = req.params.id;
-
-    // Kolla om body är tom
-    if (!req.body || Object.keys(req.body).length === 0) {
-        return res.status(400).json({ error: "At least one field must be provided for update" })
-    }
 
     const { errors, trimmedData } = validateProductData(req.body, true); // true = uppdatera
 

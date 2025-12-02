@@ -11,6 +11,7 @@ import {
 
 import { validateSupplierData } from "../helpers/validationHelpers.mjs";
 import { validateIdParam } from "../helpers/validateIdParam.mjs";
+import { validateNonEmptyBody } from "../helpers/validateNonEmptyBody.mjs";
 
 const router = express.Router();
 
@@ -56,13 +57,8 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /suppliers/:id - Uppdaterar en leverantör baserat på ID
-router.put("/:id", validateIdParam, async (req, res) => {
+router.put("/:id", validateIdParam, validateNonEmptyBody, async (req, res) => {
     const id = req.params.id;
-
-    // Kolla om body är tom
-    if (!req.body || Object.keys(req.body).length === 0) {
-        return res.status(400).json({ error: "At least one field must be provided for update" })
-    }
 
     // true = update-mode (kräver inte alla fält)
     const { errors, trimmedData } = validateSupplierData(req.body, true);
