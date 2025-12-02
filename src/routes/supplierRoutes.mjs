@@ -10,6 +10,7 @@ import {
 } from "../repositories/supplierRepository.mjs";
 
 import { validateSupplierData } from "../helpers/validationHelpers.mjs";
+import { validateIdParam } from "../helpers/validateIdParam.mjs";
 
 const router = express.Router();
 
@@ -25,13 +26,8 @@ router.get("/", async (req, res) => {
 });
 
 // GET /suppliers/:id - Hämtar en specifik leverantör baserat på ID
-router.get("/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-
-    if (Number.isNaN(id)) {
-        return res.status(400).json({ error: "ID must be a number" });
-    }
-
+router.get("/:id", validateIdParam, async (req, res) => {
+    const id = req.params.id;
     try {
         const supplier = await getSupplierById(id);
         if (!supplier) return res.status(404).json({ error: "Supplier not found" });
@@ -60,12 +56,8 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /suppliers/:id - Uppdaterar en leverantör baserat på ID
-router.put("/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-
-    if (Number.isNaN(id)) {
-        return res.status(400).json({ error: "ID must be a number" });
-    }
+router.put("/:id", validateIdParam, async (req, res) => {
+    const id = req.params.id;
 
     // Kolla om body är tom
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -88,13 +80,8 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE /suppliers/:id - Tar bort en leverantör baserat på ID
-router.delete("/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-
-    if (Number.isNaN(id)) {
-        return res.status(400).json({ error: "ID must be a number" });
-    }
-
+router.delete("/:id", validateIdParam, async (req, res) => {
+    const id = req.params.id;
     try {
         const supplier = await deleteSupplier(id);
 
@@ -109,13 +96,8 @@ router.delete("/:id", async (req, res) => {
 });
 
 // GET /suppliers/:id/products - Hämtar alla produkter kopplade till en specifik leverantör
-router.get("/:id/products", async (req, res) => {
-    const id = parseInt(req.params.id);
-
-    if (Number.isNaN(id)) {
-        return res.status(400).json({ error: "ID must be a number" });
-    }
-
+router.get("/:id/products", validateIdParam, async (req, res) => {
+    const id = req.params.id;
     try {
         const products = await getProductsBySupplier(id);
         res.json(products);

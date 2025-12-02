@@ -13,6 +13,8 @@ import {
 // Importera valideringshelper
 import { validateProductData } from "../helpers/validationHelpers.mjs";
 
+import { validateIdParam } from "../helpers/validateIdParam.mjs";
+
 // Skapar en router-instans från Express för att definiera routes
 const router = express.Router();
 
@@ -31,14 +33,8 @@ router.get("/", async (req, res) => {
 });
 
 // GET /products/:id - Hämta specifik produkt
-router.get("/:id", async (req, res) => {
-    const id = parseInt(req.params.id); // Konvertera URL-parametern till ett heltal
-
-    // Validering: Kontrollera att ID är ett nummer
-    if (Number.isNaN(id)) {
-        return res.status(400).json({ error: "ID must be a number" });
-    }
-
+router.get("/:id", validateIdParam, async (req, res) => {
+    const id = req.params.id;
     try {
         // Hämta produkten med det specifika ID:t
         const product = await getProductById(id);
@@ -73,12 +69,8 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /products/:id - Uppdatera befintlig produkt
-router.put("/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-
-    if (Number.isNaN(id)) {
-        return res.status(400).json({ error: "ID must be a number" });
-    }
+router.put("/:id", validateIdParam, async (req, res) => {
+    const id = req.params.id;
 
     // Kolla om body är tom
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -100,13 +92,8 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE /products/:id - Ta bort produkt
-router.delete("/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-
-    if (Number.isNaN(id)) {
-        return res.status(400).json({ error: "ID must be a number" });
-    }
-
+router.delete("/:id", validateIdParam, async (req, res) => {
+    const id = req.params.id;
     try {
         const product = await deleteProduct(id);
         if (!product) return res.status(404).json({ error: "Product not found" });
