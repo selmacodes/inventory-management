@@ -35,7 +35,7 @@ export function validateProductData({ name, quantity, price, category, supplier_
     // Validering av price
     if (!isUpdate || price !== undefined) {
         if (typeof price !== "number" || price < 0) {
-            errors.push("'price' cannot be negative and must be an integer");
+            errors.push("'price' must be a non-negative number");
         }
     }
 
