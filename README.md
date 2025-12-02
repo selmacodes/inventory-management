@@ -59,7 +59,7 @@ Produkter kopplas till leverantörer via en foreign key:
 
 ## Projektstruktur
 Projektet är organiserat för tydlig separation av ansvar:
-```
+```text
 /routes        - Express-routes som hanterar API-endpoints
 /repositories  - SQL-logik och databasfrågor (DB-lagret)
 /helpers       - Valideringsfunktioner och återanvändbara hjälpfunktioner
@@ -72,19 +72,19 @@ Projektet är organiserat för tydlig separation av ansvar:
 ## Installation & Setup
 
 ### 1. Klona repot och gå in i mappen
-```
+```bash
 git clone <repository-url>
 cd <project-folder>
 ```
 
 ### 2. Installera beroenden
-```
+```bash
 npm install
 ```
 
 ### 3. Konfigurera miljövariabler
 Skapa en env.-fil i projektets rotkatalog baserat på .env.example:
-```
+```env
 # Server
 HOST=localhost
 PORT=3000
@@ -98,12 +98,12 @@ DB_PASSWORD=your_password
 ```
 
 ### 4. Skapa databasen
-```
+```sql
 CREATE DATABASE inventory;
 ```
 
 ### 5. Starta servern
-```
+```bash
 npm start
 ```
 Servern körs på porten som anges i .env (t.ex. http://localhost:3000)
