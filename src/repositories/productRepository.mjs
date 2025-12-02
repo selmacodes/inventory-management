@@ -20,7 +20,6 @@ export async function getAllProducts() {
         `);
         return result.rows;
     } catch (err) {
-        console.error("DB ERROR - getAllProducts:", err);
         throw err; // Skickas vidare till routen som svarar med felkod
     }
 }
@@ -44,7 +43,6 @@ export async function getProductById(id) {
         `, [id]);
         return result.rows[0]; // Returnerar produkten (eller undefined om den inte finns)
     } catch (err) {
-        console.error(`DB ERROR - getProductById (ID: ${id}):`, err);
         throw err;
     }
 }
@@ -61,7 +59,6 @@ export async function createProduct ({ name, quantity, price, category, supplier
         );
         return result.rows[0];
     } catch (err) {
-        console.error("DB ERROR - createProduct:", err);
         throw err;
     }
 }
@@ -83,7 +80,6 @@ export async function updateProduct (id, { name, quantity, price, category, supp
         `, [name, quantity, price, category, supplier_id, id]);
         return result.rows[0];
     } catch (err) {
-        console.error(`DB ERROR - updateProduct (ID: ${id}):`, err);
         throw err;
     }
 }
@@ -94,7 +90,6 @@ export async function deleteProduct(id) {
         const result = await pool.query("DELETE FROM products WHERE id = $1 RETURNING *", [id]);
         return result.rows[0];
     } catch (err) {
-        console.error(`DB ERROR - deleteProduct (ID: ${id}):`, err);
         throw err;
     }
 }

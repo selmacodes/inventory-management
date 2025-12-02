@@ -7,7 +7,6 @@ export async function getAllSuppliers() {
         const result = await pool.query("SELECT * FROM suppliers ORDER BY id ASC");
         return result.rows;
     } catch (err) {
-        console.error("DB ERROR - getAllSuppliers:", err);
         throw err;
     }
 }
@@ -25,7 +24,6 @@ export async function getSupplierById(id) {
         );
         return result.rows[0];
     } catch (err) {
-        console.error(`DB ERROR - getSupplierById (ID: ${id}):`, err);
         throw err;
     }
 }
@@ -41,7 +39,6 @@ export async function createSupplier({ name, contact_person, email, phone, count
         );
         return result.rows[0];
     } catch (err) {
-        console.error("DB ERROR - createSupplier:", err);
         throw err;
     }
 }
@@ -63,7 +60,6 @@ export async function updateSupplier(id, { name, contact_person, email, phone, c
         );
         return result.rows[0];
     } catch (err) {
-        console.error(`DB ERROR - updateSupplier (ID: ${id}):`, err);
         throw err;
     }
 }
@@ -77,7 +73,6 @@ export async function deleteSupplier(id) {
         );
         return result.rows[0];
     } catch (err) {
-        console.error(`DB ERROR - deleteSupplier (ID: ${id}):`, err);
         throw err;
     }
 }
@@ -94,7 +89,6 @@ export async function getProductsBySupplier(supplierId) {
         );
         return result.rows;
     } catch (err) {
-        console.error(`DB ERROR - getProductsBySupplier (supplierId: ${supplierId}):`, err);
         throw err;
     }
 }
