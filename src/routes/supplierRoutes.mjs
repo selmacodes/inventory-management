@@ -84,7 +84,7 @@ router.delete("/:id", validateIdParam, async (req, res) => {
         // Om ingen rad raderades -> ingen leverantör hittad
         if (!supplier) return res.status(404).json({ error: "Supplier not found" });
 
-        res.json({ message: "Supplier deleted", supplier });
+        res.json(supplier);
     } catch (err) {
         console.error(`DB ERROR - deleteSupplier (ID: ${id}):`, err);
         res.status(500).json({ error: "Failed to delete supplier" });
