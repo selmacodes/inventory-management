@@ -64,7 +64,7 @@ Projektet är organiserat för tydlig separation av ansvar:
 /repositories  - SQL-logik och databasfrågor (DB-lagret)
 /helpers       - Valideringsfunktioner och återanvändbara hjälpfunktioner
 /config        - Databasanslutning och setup
-.env.example    - Exempel på miljövariabler för konfiguration
+.env.example   - Exempel på miljövariabler för konfiguration
 ```
 
 ---
