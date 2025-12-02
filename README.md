@@ -13,6 +13,7 @@ Produkter är kopplade till leverantörer via en SQL-relation och all produktdat
 - JOIN-frågor för att returnera komplett produktinformation
 - Användning av `jsonb_build_object` för att bygga inbäddade JSON-objekt i SQL-responsen
 - Input-validering och tydlig felhantering
+- Validering av ID-parametrar och tom body via middleware
 - Miljövariabler via `.env` för säker konfiguration
 - Repository-struktur för ren och testbar databaslogik
 
