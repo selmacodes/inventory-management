@@ -60,19 +60,18 @@ Produkter kopplas till leverantörer via en foreign key:
 
 ## Projektstruktur
 Projektet är organiserat för tydlig separation av ansvar:
-```text
+
 /routes        - Express-routes som hanterar API-endpoints
 /repositories  - SQL-logik och databasfrågor (DB-lagret)
 /helpers       - Valideringsfunktioner och återanvändbara hjälpfunktioner
 /config        - Databasanslutning och setup
 .env.example   - Exempel på miljövariabler för konfiguration
-```
 
 ---
 
 ## Installation & Setup
 
-### 1. Klona repot och gå in i mappen
+### 1. Klona repo och gå in i mappen
 ```bash
 git clone <repository-url>
 cd <project-folder>
@@ -84,7 +83,7 @@ npm install
 ```
 
 ### 3. Konfigurera miljövariabler
-Skapa en env.-fil i projektets rotkatalog baserat på .env.example:
+Skapa en `.env`-fil i projektets rotkatalog baserat på .env.example:
 ```env
 # Server
 HOST=localhost
@@ -104,10 +103,12 @@ CREATE DATABASE inventory;
 ```
 
 ### 5. Starta servern
+Kör kommandot i terminalen från projektets rotmapp:
+
 ```bash
-npm start
+node src/app.mjs
 ```
-Servern körs på porten som anges i .env (t.ex. http://localhost:3000)
+Servern körs på porten som anges i `.env` (t.ex. http://localhost:3000)
 
 ---
 
