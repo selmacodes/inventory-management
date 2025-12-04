@@ -61,11 +61,11 @@ Produkter kopplas till leverantörer via en foreign key:
 ## Projektstruktur
 Projektet är organiserat för tydlig separation av ansvar:
 
-/routes        - Express-routes som hanterar API-endpoints
-/repositories  - SQL-logik och databasfrågor (DB-lagret)
-/helpers       - Valideringsfunktioner och återanvändbara hjälpfunktioner
-/config        - Databasanslutning och setup
-.env.example   - Exempel på miljövariabler för konfiguration
+- `/routes`        - Express-routes som hanterar API-endpoints
+- `/repositories`  - SQL-logik och databasfrågor (DB-lagret)
+- `/helpers`       - Valideringsfunktioner och återanvändbara hjälpfunktioner
+- `/config`        - Databasanslutning och setup
+- `.env.example`   - Exempel på miljövariabler för konfiguration
 
 ---
 
